@@ -1,0 +1,441 @@
+<html>
+  
+<head>
+
+<link href='https://process.fs.teachablecdn.com/ADNupMnWyR7kCWRvm76Laz/resize=width:32,height:32/https://www.filepicker.io/api/file/rckU1gVQQazxRKdwwoxw' rel='icon' type='image/png' />
+
+<link href='https://process.fs.teachablecdn.com/ADNupMnWyR7kCWRvm76Laz/resize=width:72,height:72/https://www.filepicker.io/api/file/rckU1gVQQazxRKdwwoxw' rel='apple-touch-icon' type='image/png' />
+
+<link href='https://process.fs.teachablecdn.com/ADNupMnWyR7kCWRvm76Laz/resize=width:144,height:144/https://www.filepicker.io/api/file/rckU1gVQQazxRKdwwoxw' rel='apple-touch-icon' type='image/png' />
+
+<link href='https://process.fs.teachablecdn.com/ADNupMnWyR7kCWRvm76Laz/resize=width:320,height:345/https://www.filepicker.io/api/file/GfdpYXR9QrKSCqqe0QdO' rel='apple-touch-startup-image' type='image/png' />
+
+<link href='https://process.fs.teachablecdn.com/ADNupMnWyR7kCWRvm76Laz/resize=width:640,height:690/https://www.filepicker.io/api/file/GfdpYXR9QrKSCqqe0QdO' rel='apple-touch-startup-image' type='image/png' />
+
+<title>Layout</title>
+
+<style type="text/css">
+
+  body {
+    margin: 0;
+  }
+
+  #canvas-div {
+    width: 100vw;
+    height: auto;
+  }
+
+  #video-div {
+    margin: auto;
+    width: 100%;
+    height: 80%;
+  }
+
+  #video {
+    display: block;
+    height: 100%;
+    width: auto;
+    /*margin: auto;*/
+  }
+
+  #camera-div {
+    width: 100%;
+    height: 20%;
+    overflow: hidden;
+  }
+
+  #camera {
+    width: 100%;
+  }
+
+  #control-div {
+    display: block;
+    margin-top: 32px;
+  }
+
+  #control-div #live {
+    display: block;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 32px;
+    padding: 16px 16px 0 16px;
+    border: 1px solid black;
+  }
+
+  #record {
+    display: none;
+    background-color: red;
+    color: white;
+  }
+
+  #log-div {
+    display: none;
+    margin-top: 32px;
+  }
+
+  .slider {
+    width: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 8px;
+  }
+
+  .error {
+    color: red;
+  }
+
+  .warn {
+    color: orange;
+  }
+
+  .info {
+    color: darkgreen;
+  }
+
+</style>
+
+</head>
+
+<body>
+
+<div id="canvas-div">
+<div id="video-div"><video id="video" autoplay></video></div>
+<div id="camera-div"><video id="camera" autoplay></video></div>
+</div>
+
+<div id="control-div">
+<div id="live">
+<input type="range" min="0" max="100" value="80" class="slider" id="divider">
+<input type="range" min="0" max="100" value="0" class="slider" id="position">
+<p>
+<span>Capture: <select id="aligncapture"><option>Left</option><option>Center</option><option>Right</option></select></span>
+<span>Camera: <button id="vertical">Flip Vertical</button>&nbsp;<button id="horizontal">Flip Horizontal</button></span>
+</p>
+</div>
+<p>
+<button id="start">Start Capture</button>&nbsp;<button id="stop">Stop Capture</button>
+<input type="checkbox" id="canceldisplayecho" name="canceldisplayecho"><label for="canceldisplayecho">Cancel Echo</label>
+</p>
+<p>
+<select id="selectcam"><option>Default</option></select>
+<select id="selectmic"><option>None</option></select>
+</p>
+<p>
+<button id="startcam">Start Camera</button>&nbsp;<button id="stopcam">Stop Camera</button>
+<input type="checkbox" id="cancelecho" name="cancelecho"><label for="cancelecho">Cancel Echo</label>
+<input type="checkbox" id="voice" name="voice"><label for="voice">Optimize for Voice</label>
+</p>
+<p><button id="record" accesskey=" ">Record</button></p>
+</div>
+
+<div id="log-div">
+<strong>Log:</strong>
+<br>
+<pre id="log"></pre>
+</div>
+
+<script>
+
+const canvasDivElem = document.getElementById("canvas-div");
+const videoDivElem = document.getElementById("video-div");
+const videoElem = document.getElementById("video");
+const cameraDivElem = document.getElementById("camera-div");
+const cameraElem = document.getElementById("camera");
+const logElem = document.getElementById("log");
+const startElem = document.getElementById("start");
+const stopElem = document.getElementById("stop");
+const startCamElem = document.getElementById("startcam");
+const stopCamElem = document.getElementById("stopcam");
+const selectElem = document.getElementById("selectcam");
+const defaultElem = selectElem.firstChild;
+const selectMicElem = document.getElementById("selectmic");
+const defaultMicElem = selectMicElem.firstChild;
+const cancelDisplayEchoElem = document.getElementById("canceldisplayecho");
+const cancelEchoElem = document.getElementById("cancelecho");
+const voiceElem = document.getElementById("voice");
+const alignCaptureElem = document.getElementById("aligncapture");
+const verticalElem = document.getElementById("vertical");
+const horizontalElem = document.getElementById("horizontal");
+const recordElem = document.getElementById("record");
+
+function gotDevices(mediaDevices) {
+  selectElem.innerHTML = '';
+  selectElem.appendChild(defaultElem);
+  selectMicElem.innerHTML = '';
+  selectMicElem.appendChild(defaultMicElem);
+  let count = 1;
+  mediaDevices.forEach(mediaDevice => {
+    if (mediaDevice.kind === 'videoinput') {
+      const option = document.createElement('option');
+      option.value = mediaDevice.deviceId;
+      const label = mediaDevice.label || `Camera ${count++}`;
+      const textNode = document.createTextNode(label);
+      option.appendChild(textNode);
+      selectElem.appendChild(option);
+    } else if (mediaDevice.kind === 'audioinput') {
+      const option = document.createElement('option');
+      option.value = mediaDevice.deviceId;
+      const label = mediaDevice.label || `Mic/line ${count++}`;
+      const textNode = document.createTextNode(label);
+      option.appendChild(textNode);
+      selectMicElem.appendChild(option);
+    }
+  });
+}
+
+function devicesChanged (event) {
+    navigator.mediaDevices.enumerateDevices().then(gotDevices);
+}
+
+navigator.mediaDevices.enumerateDevices().then(gotDevices);
+navigator.mediaDevices.ondevicechange = devicesChanged;
+
+var dividerElem = document.getElementById("divider");
+dividerElem.oninput = function(event) {
+  canvasHeight = canvasDivElem.offsetHeight;
+  p1 = this.value / 100;
+  p2 = 1 - p1;
+  videoDivElem.style.height = canvasHeight * p1;
+  cameraDivElem.style.height = canvasHeight * p2
+  //console.info("canvasHeight = " + canvasHeight + "; p1 = " + p1 + "; p2 = " + p2);
+}
+dividerElem.ondblclick = function(event) {
+  this.value = 80;
+  videoDivElem.style.height = "80%";
+  cameraDivElem.style.height = "20%";
+}
+
+var positionElem = document.getElementById("position");
+positionElem.oninput = function(event) {
+  maxOffset = cameraElem.offsetHeight - cameraDivElem.offsetHeight;
+  px = maxOffset * (0 - this.value) / 100;
+  cameraElem.style.marginTop = px;
+  //console.info("maxOffset = " + maxOffset + "; px = " + px);
+}
+positionElem.ondblclick = function(event) {
+  this.value = 0;
+  cameraElem.style.marginTop = 0;
+}
+
+alignCaptureElem.oninput = function(event) {
+  switch (this.value) {
+    case 'Left':
+      videoElem.style.marginLeft = 0;
+      videoElem.style.marginRight = "auto";
+      break;
+    case 'Center':
+      videoElem.style.marginLeft = "auto";
+      videoElem.style.marginRight = "auto";
+      break;
+    case 'Right':
+      videoElem.style.marginLeft = "auto";
+      videoElem.style.marginRight = 0;
+      break;
+    default:
+      console.error("unrecognized alignment");
+  }
+}
+
+var vflip = false;
+var hflip = false;
+
+function doTransform () {
+  var v = vflip ? "rotate(180deg)" : "rotate(0deg)";
+  var h = hflip ? "scaleX(-1)" : "scaleX(1)";
+  cameraElem.style.transform = v + h;
+  var vc = vflip ? "red" : "black";
+  var hc = hflip ? "red" : "black";
+  verticalElem.style.color = vc;
+  horizontalElem.style.color = hc;
+}
+
+verticalElem.onclick = function(event) {
+  vflip = !vflip;
+  doTransform();
+  toStorage();
+}
+
+horizontalElem.onclick = function(event) {
+  hflip = !hflip;
+  doTransform();
+  toStorage();
+}
+
+var recording = false;
+
+recordElem.onclick = function(event) {
+  if (recording) {
+    //stopRecording();
+    console.info("Recording ended");
+    this.innerText = "Record";
+  } else {
+    //startRecording();
+    console.info("Recording started");
+    this.innerText = "Stop";
+  }
+  recording = !recording;
+}
+
+var displayMediaOptions = {
+  video: {
+    cursor: "always"
+  },
+  audio: {
+//    latency: 1.0,
+    autoGainControl: false,
+    noiseSuppression: false
+  }
+};
+
+var userMediaOptions = {
+  video: {
+    aspectRatio: { ideal: 1.78 },
+    facingMode: { ideal: "environment" }
+  },
+};
+
+var userAudioOptions = {
+//    latency: 1.0,
+    autoGainControl: false,
+    noiseSuppression: false
+}
+
+// Set event listeners for the start and stop buttons
+startElem.addEventListener("click", function(evt) {
+  startCapture();
+}, false);
+
+stopElem.addEventListener("click", function(evt) {
+  stopCapture();
+}, false);
+
+startCamElem.addEventListener("click", function(evt) {
+  startCamera();
+}, false);
+
+stopCamElem.addEventListener("click", function(evt) {
+  stopCamera();
+}, false);
+
+console.log = msg => logElem.innerHTML += `${msg}<br>`;
+console.error = msg => logElem.innerHTML += `<span class="error">${msg}</span><br>`;
+console.warn = msg => logElem.innerHTML += `<span class="warn">${msg}<span><br>`;
+console.info = msg => logElem.innerHTML += `<span class="info">${msg}</span><br>`;
+
+function listDevices () {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    console.log("enumerateDevices() not supported.");
+    return;
+  }
+  navigator.mediaDevices.enumerateDevices().then(function(devices) {
+    devices.forEach(function(device) {
+      console.log(JSON.stringify(device));
+    });
+  })
+  .catch(function(err) {
+    console.log(err.name + ": " + err.message);
+  });
+}
+
+async function startCapture() {
+  try {
+    displayMediaOptions.audioechoCancellation = cancelDisplayEchoElem.checked;
+    videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+    //const devices = await navigator.mediaDevices.enumerateDevices();
+    //const audioDevices = devices.filter(device => device.kind === 'audiooutput');
+    //await videoElem.setSinkId(audioDevices[0].deviceId);
+    //dumpOptionsInfo(videoElem);
+  } catch(err) {
+    console.error("Error: " + err);
+  }
+}
+
+function stopCapture(evt) {
+  let tracks = videoElem.srcObject.getTracks();
+  tracks.forEach(track => track.stop());
+  videoElem.srcObject = null;
+}
+
+async function startCamera() {
+  try {
+    if (selectElem.value != 'Default') {
+        userMediaOptions.video.deviceId = { exact: selectElem.value };
+    }
+    else {
+        userMediaOptions.video.deviceId = 0;
+    }
+    if (selectMicElem.value != 'None') {
+        if (userAudioOptions.deviceId) {
+            userAudioOptions.deviceId = { exact: selectMicElem.value };
+        }
+        userAudioOptions.autoGainControl = voiceElem.checked;
+        userAudioOptions.noiseSuppression = voiceElem.checked;
+        userAudioOptions.echoCancellation = cancelEchoElem.checked;
+        userMediaOptions.audio = userAudioOptions;
+    }
+    else {
+        userMediaOptions.audio = false;
+    }
+    cameraElem.srcObject = await navigator.mediaDevices.getUserMedia(userMediaOptions);
+    //dumpOptionsInfo(cameraElem);
+  } catch(err) {
+    console.error("Error: " + err);
+  }
+}
+
+function stopCamera(evt) {
+  let tracks = cameraElem.srcObject.getTracks();
+  tracks.forEach(track => track.stop());
+  cameraElem.srcObject = null;
+}
+
+function dumpOptionsInfo(e) {
+  const videoTrack = e.srcObject.getVideoTracks()[0];
+  console.info("Track settings:");
+  console.info(JSON.stringify(videoTrack.getSettings(), null, 2));
+  console.info("Track constraints:");
+  console.info(JSON.stringify(videoTrack.getConstraints(), null, 2));
+  const audioTrack = e.srcObject.getAudioTracks()[0];
+  console.info("Track settings:");
+  console.info(JSON.stringify(audioTrack.getSettings(), null, 2));
+  console.info("Track constraints:");
+  console.info(JSON.stringify(audioTrack.getConstraints(), null, 2));
+}
+
+function fromStorage () {
+  dividerElem.value = window.localStorage.getItem('divider');
+  dividerElem.oninput();
+  positionElem.value = window.localStorage.getItem('position');
+  positionElem.oninput();
+  alignCaptureElem.value = window.localStorage.getItem('alignment');
+  alignCaptureElem.oninput();
+  vflip = (window.localStorage.getItem('vertical') == 'true');
+  hflip = (window.localStorage.getItem('horizontal') == 'true');
+  doTransform();
+}
+
+function toStorage () {
+  window.localStorage.setItem('divider', dividerElem.value);
+  window.localStorage.setItem('position', positionElem.value);
+  window.localStorage.setItem('alignment', alignCaptureElem.value);
+  window.localStorage.setItem('vertical', vflip);
+  window.localStorage.setItem('horizontal', hflip);
+}
+
+dividerElem.onchange = toStorage;
+positionElem.onchange = toStorage;
+alignCaptureElem.onchange = toStorage;
+
+listDevices();
+
+if (window.localStorage.getItem('divider')) {
+  fromStorage();
+}
+
+</script>
+
+</body>
+
+</html>
