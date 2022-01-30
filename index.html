@@ -2,7 +2,7 @@
   
 <head>
 
-<title>Virtual Piano Studio</title>
+<title>Visual Piano Studio</title>
 
 <link href='Keys-32x32.png' rel='icon' type='image/png' />
 <!--
@@ -26,10 +26,14 @@
 <div id="control-div">
 
 <div id="live">
-<input type="range" min="0" max="100" value="80" class="slider" id="divider">
-<input type="range" min="0" max="100" value="0" class="slider" id="position">
+<input type="range" min="0" max="100" value="80" class="longslider" id="divider">
+<input type="range" min="0" max="100" value="0" class="longslider" id="position">
 <p>
-<span>Capture: <select id="aligncapture"><option select>Left</option><option>Center</option><option>Right</option></select></span>
+<span>Capture: <select id="aligncapture">
+  <option select accesskey="L">Left</option>
+  <option accesskey="C">Center</option>
+  <option accesskey="R">Right</option>
+</select></span>
 <span>Camera: <button id="vertical">Flip Vertical</button>&nbsp;<button id="horizontal">Flip Horizontal</button></span>
 </p>
 </div>
@@ -45,7 +49,7 @@
 </p>
 <p>
 <button id="startcam">Start Camera</button>&nbsp;<button id="stopcam">Stop Camera</button>
-<input type="checkbox" id="cancelecho" name="cancelecho"><label for="cancelecho">Cancel Echo</label>
+<input type="checkbox" id="cancelcamecho" name="cancelcamecho"><label for="cancelcamecho">Cancel Echo</label>
 <input type="checkbox" id="voice" name="voice"><label for="voice">Optimize for Voice</label>
 </p>
 <p><button id="record" accesskey=" ">Record</button></p>

@@ -20,7 +20,7 @@ const cancelDisplayEchoElem = document.getElementById("canceldisplayecho");
 
 const startCamElem = document.getElementById("startcam");
 const stopCamElem = document.getElementById("stopcam");
-const cancelEchoElem = document.getElementById("cancelecho");
+const cancelCamEchoElem = document.getElementById("cancelcamecho");
 const voiceElem = document.getElementById("voice");
 
 const selectElem = document.getElementById("selectcam");
@@ -129,7 +129,7 @@ stopCamElem.addEventListener("click", function(evt) {
 
 async function startCapture() {
   try {
-    displayMediaOptions.audioechoCancellation = cancelDisplayEchoElem.checked;
+    displayMediaOptions.audio.echoCancellation = cancelDisplayEchoElem.checked;
     videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
     //const devices = await navigator.mediaDevices.enumerateDevices();
     //const audioDevices = devices.filter(device => device.kind === 'audiooutput');
@@ -166,16 +166,17 @@ async function startCamera() {
       }
       userAudioOptions.autoGainControl = voiceElem.checked;
       userAudioOptions.noiseSuppression = voiceElem.checked;
-      userAudioOptions.echoCancellation = cancelEchoElem.checked;
+      userAudioOptions.echoCancellation = cancelCamEchoElem.checked;
       userMediaOptions.audio = userAudioOptions;
     }
     else {
       userMediaOptions.audio = false;
     }
     cameraElem.srcObject = await navigator.mediaDevices.getUserMedia(userMediaOptions);
-    //dumpOptionsInfo(cameraElem);
+    dumpOptionsInfo(cameraElem);
   } catch(err) {
     console.error("Error: " + err);
+    alert(err);
   }
 }
 
@@ -187,15 +188,19 @@ function stopCamera(evt) {
 
 function dumpOptionsInfo(e) {
   const videoTrack = e.srcObject.getVideoTracks()[0];
-  console.info("Track settings:");
-  console.info(JSON.stringify(videoTrack.getSettings(), null, 2));
-  console.info("Track constraints:");
-  console.info(JSON.stringify(videoTrack.getConstraints(), null, 2));
+  if (videoTrack) {
+    console.info("Track settings:");
+    console.info(JSON.stringify(videoTrack.getSettings(), null, 2));
+    console.info("Track constraints:");
+    console.info(JSON.stringify(videoTrack.getConstraints(), null, 2));
+  }
   const audioTrack = e.srcObject.getAudioTracks()[0];
-  console.info("Track settings:");
-  console.info(JSON.stringify(audioTrack.getSettings(), null, 2));
-  console.info("Track constraints:");
-  console.info(JSON.stringify(audioTrack.getConstraints(), null, 2));
+  if (audioTrack) {
+    console.info("Track settings:");
+    console.info(JSON.stringify(audioTrack.getSettings(), null, 2));
+    console.info("Track constraints:");
+    console.info(JSON.stringify(audioTrack.getConstraints(), null, 2));
+  }
 }
 
 //
@@ -315,14 +320,21 @@ function fromStorage () {
   vflip = (window.localStorage.getItem('vertical') == 'true');
   hflip = (window.localStorage.getItem('horizontal') == 'true');
   doTransform();
+  cancelDisplayEchoElem.checked = (window.localStorage.getItem('canceldisplayecho') == 'true');
+  cancelCamEchoElem.checked = (window.localStorage.getItem('cancelcamecho') == 'true');
+  voiceElem.checked = (window.localStorage.getItem('voice') == 'true');
 }
 
 function toStorage () {
+  window.localStorage.setItem('version', "1");
   window.localStorage.setItem('divider', dividerElem.value);
   window.localStorage.setItem('position', positionElem.value);
   window.localStorage.setItem('alignment', alignCaptureElem.value);
   window.localStorage.setItem('vertical', vflip);
   window.localStorage.setItem('horizontal', hflip);
+  window.localStorage.setItem('canceldisplayecho', cancelDisplayEchoElem.checked);
+  window.localStorage.setItem('cancelcamecho', cancelCamEchoElem.checked);
+  window.localStorage.setItem('voice', voiceElem.checked);
 }
 
 //
@@ -341,11 +353,13 @@ console.info = msg => logElem.innerHTML += `<span class="info">${msg}</span><br>
 dividerElem.onchange = toStorage;
 positionElem.onchange = toStorage;
 alignCaptureElem.onchange = toStorage;
+cancelDisplayEchoElem.onchange = toStorage;
+cancelCamEchoElem.onchange = toStorage;
+voiceElem.onchange = toStorage;
 
-if (window.localStorage.getItem('divider')) {
+if (window.localStorage.getItem('version') >= 1) {
   fromStorage();
 }
-
 
 // window size
 

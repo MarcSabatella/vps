@@ -57,13 +57,15 @@ body {
 }
 
 #log-div {
-  display: block;
+  display: none;
   margin-top: 32px;
-  width: 100vw;
+  margin-left: 8px;
+  margin-right: 8px;
+  width: calc(100vw - 16px);
   overflow: scroll;
 }
 
-.slider {
+.longslider {
   width: 100%;
   display: block;
   margin-left: auto;

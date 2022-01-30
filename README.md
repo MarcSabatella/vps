@@ -1,2 +1,2 @@
 # vps
-Virtual Piano Studio
+Visual Piano Studio
