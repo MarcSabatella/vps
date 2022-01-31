@@ -19,48 +19,51 @@
 <body>
 
 <div id="canvas-div">
-<div id="video-div"><video id="video" autoplay></video></div>
-<div id="camera-div"><video id="camera" autoplay></video></div>
+  <div id="msg">Scroll down to display controls</div>
+  <div id="video-div"><video id="video" autoplay></video></div>
+  <div id="camera-div"><video id="camera" autoplay></video></div>
 </div>
 
 <div id="control-div">
 
 <div id="live">
-<input type="range" min="0" max="100" value="80" class="longslider" id="divider">
-<input type="range" min="0" max="100" value="0" class="longslider" id="position">
-<p>
-<span>Capture: <select id="aligncapture">
-  <option select accesskey="L">Left</option>
-  <option accesskey="C">Center</option>
-  <option accesskey="R">Right</option>
-</select></span>
-<span>Camera: <button id="vertical">Flip Vertical</button>&nbsp;<button id="horizontal">Flip Horizontal</button></span>
-</p>
+  <div class="column">
+    <label for="divider">Divider: </label><input type="range" min="0" max="100" value="80" class="longslider" id="divider">
+    <label for="position">Camera Pan: </label><input type="range" min="0" max="100" value="0" class="longslider" id="position">
+  </div>
+  <p>
+    <span><label for="aligncapture">Capture: </label><select id="aligncapture">
+      <option accesskey="L" select>Left</option>
+      <option accesskey="C">Center</option>
+      <option accesskey="R">Right</option>
+    </select></span>
+    <span>Camera: <button id="vertical">Flip Vertical</button>&nbsp;<button id="horizontal">Flip Horizontal</button></span>
+  </p>
 </div>
 
 <div id="static">
-<p>
-<button id="start">Start Capture</button>&nbsp;<button id="stop">Stop Capture</button>
-<input type="checkbox" id="canceldisplayecho" name="canceldisplayecho"><label for="canceldisplayecho">Cancel Echo</label>
-</p>
-<p>
-<select id="selectcam"><option selected>Default</option></select>
-<select id="selectmic"><option selected>None</option></select>
-</p>
-<p>
-<button id="startcam">Start Camera</button>&nbsp;<button id="stopcam">Stop Camera</button>
-<input type="checkbox" id="cancelcamecho" name="cancelcamecho"><label for="cancelcamecho">Cancel Echo</label>
-<input type="checkbox" id="voice" name="voice"><label for="voice">Optimize for Voice</label>
-</p>
-<p><button id="record" accesskey=" ">Record</button></p>
+  <p>
+    <button id="start">Start Capture</button>&nbsp;<button id="stop">Stop Capture</button>
+    <input type="checkbox" id="canceldisplayecho" name="canceldisplayecho"><label for="canceldisplayecho">Cancel Echo</label>
+  </p>
+  <p>
+    <label for="selectcam">Camera: </label><select id="selectcam"><option selected>Default</option></select>
+    <label for="selectmic">Microphone: </label><select id="selectmic"><option selected>None</option></select>
+  </p>
+  <p>
+    <button id="startcam">Start Camera</button>&nbsp;<button id="stopcam">Stop Camera</button>
+    <input type="checkbox" id="cancelcamecho" name="cancelcamecho"><label for="cancelcamecho">Cancel Echo</label>
+    <input type="checkbox" id="voice" name="voice"><label for="voice">Optimize for Voice</label>
+  </p>
+  <p><button id="record" accesskey=" ">Record</button></p>
 </div>
 
 </div>
 
 <div id="log-div">
-<strong>Log:</strong>
-<br>
-<pre id="log"></pre>
+  <strong>Log:</strong>
+  <br>
+  <pre id="log"></pre>
 </div>
 
 <script src="vps.js"></script>

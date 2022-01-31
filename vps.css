@@ -7,6 +7,13 @@ body {
   height: auto;
 }
 
+#canvas-div #msg {
+  position: absolute;
+  margin-top: 28vh;
+  margin-left: 28vw;
+  font-size: x-large;
+}
+
 #video-div {
   margin: auto;
   width: 100%;
@@ -44,6 +51,16 @@ body {
   padding: 16px 16px 0 16px;
   border: 1px solid black;
   background-color: #dddddd;
+}
+
+.column {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 8px;
+}
+
+.column label {
+  text-align: right;
 }
 
 #control-div #static {

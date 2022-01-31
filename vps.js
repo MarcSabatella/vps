@@ -5,6 +5,7 @@ const videoDivElem = document.getElementById("video-div");
 const videoElem = document.getElementById("video");
 const cameraDivElem = document.getElementById("camera-div");
 const cameraElem = document.getElementById("camera");
+const msgElem = document.getElementById("msg");
 
 // control elements
 
@@ -128,6 +129,7 @@ stopCamElem.addEventListener("click", function(evt) {
 }, false);
 
 async function startCapture() {
+  msgElem.style.display = "none";
   try {
     displayMediaOptions.audio.echoCancellation = cancelDisplayEchoElem.checked;
     videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
@@ -147,6 +149,7 @@ function stopCapture(evt) {
 }
 
 async function startCamera() {
+  msgElem.style.display = "none";
   try {
     if (selectElem.value != 'Default') {
       if (selectElem.value) {
