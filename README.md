@@ -8,6 +8,8 @@ Rather than provide an overwhelming variety of options
 to create unlimited different layouts,
 it just makes it simple to create one that works well.
 
+## Usage
+
 To use this app, just point your browser at
 https://marcsabatella.github.io/vps
 
@@ -34,3 +36,12 @@ with additional options to enable echo cancellation and other audio processing
 to optimize the microphone for voice as opposed to music.
 
 For a demonstration, see https://youtu.be/uqfP7VZL2fs and https://youtu.be/nmZQ4Avut_A
+
+## Screenshots
+
+### In use
+
+![screenshot of results](screenshot-1.jpg)
+
+### Controls
+![screenshot of controls](screenshot-2.png)
