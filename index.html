@@ -4,6 +4,7 @@
 
 <title>Visual Piano Studio</title>
 
+<!-- <link href='manifest.json' rel='manifest' /> -->
 <link href='Keys-32x32.png' rel='icon' type='image/png' />
 <!--
 <link href='72x72.png' rel='apple-touch-icon' type='image/png' />
@@ -20,7 +21,7 @@
 
 <div id="canvas-div">
   <div id="msg">Scroll down to display controls</div>
-  <div id="video-div"><video id="video" autoplay></video></div>
+  <div id="video-div"><video id="face" autoplay></video><video id="video" autoplay></video></div>
   <div id="camera-div"><video id="camera" autoplay></video></div>
 </div>
 
@@ -29,7 +30,7 @@
 <div id="live">
   <div class="column">
     <label for="divider">Divider: </label><input type="range" min="0" max="100" value="80" class="longslider" id="divider">
-    <label for="position">Camera Pan: </label><input type="range" min="0" max="100" value="0" class="longslider" id="position">
+    <label for="position">Piano Pan: </label><input type="range" min="0" max="100" value="0" class="longslider" id="position">
   </div>
   <p>
     <span><label for="aligncapture">Capture: </label><select id="aligncapture">
@@ -37,7 +38,7 @@
       <option accesskey="C">Center</option>
       <option accesskey="R">Right</option>
     </select></span>
-    <span>Camera: <button id="vertical">Flip Vertical</button>&nbsp;<button id="horizontal">Flip Horizontal</button></span>
+    <span>Piano: <button id="vertical">Flip Vertical</button>&nbsp;<button id="horizontal">Flip Horizontal</button></span>
   </p>
 </div>
 
@@ -47,11 +48,12 @@
     <input type="checkbox" id="canceldisplayecho" name="canceldisplayecho"><label for="canceldisplayecho">Cancel Echo</label>
   </p>
   <p>
-    <label for="selectcam">Camera: </label><select id="selectcam"><option selected>Default</option></select>
+    <label for="selectcam">Piano: </label><select id="selectcam"><option selected>None</option></select>
+    <label for="selectcam">Face: </label><select id="selectface"><option selected>None</option></select>
     <label for="selectmic">Microphone: </label><select id="selectmic"><option selected>None</option></select>
   </p>
   <p>
-    <button id="startcam">Start Camera</button>&nbsp;<button id="stopcam">Stop Camera</button>
+    <button id="startcam">Start Cameras</button>&nbsp;<button id="stopcam">Stop Cameras</button>
     <input type="checkbox" id="cancelcamecho" name="cancelcamecho"><label for="cancelcamecho">Cancel Echo</label>
     <input type="checkbox" id="voice" name="voice"><label for="voice">Optimize for Voice</label>
   </p>
