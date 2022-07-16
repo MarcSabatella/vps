@@ -47,12 +47,10 @@ if you do choose to share the audio from the app.
 
 ## Screenshots
 
-These show an older version that did not support the face camera,
-but you can still get a sense of how it looks.
-
 ### In use
 
-![screenshot of results](screenshot-1.jpg)
+![screenshot of results](vps-demo.gif)
 
 ### Controls
+
 ![screenshot of controls](screenshot-2.png)
