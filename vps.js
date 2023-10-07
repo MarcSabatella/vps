@@ -463,6 +463,8 @@ function toggleRecord(event) {
     recordElem.innerText = "Record";
     recording = false;
   } else {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     if (startRecording()) {
       console.info("Recording started");
       recordElem.innerText = "Stop";

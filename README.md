@@ -30,6 +30,8 @@ After setting up your layout, scroll back up.
 Your settings are remembered the next time you run the app.
 
 To record, click the record button in the control area, or double-click the main canvas area.
+There is also a keyboard shortcut, Alt+Space
+(for Chrome; some browsers may use modifiers other than Alt).
 Stop recording the same way.
 You will then be prompted to save the resulting webm file.
 
@@ -42,8 +44,6 @@ such as Screencastify or Zoom.
 
 ## Screenshots
 
-Note these do not show the recording capability.
-
 ### In use
 
 ![screenshot of results](vps-demo.gif)
@@ -55,3 +55,5 @@ Note these do not show the recording capability.
 ### Demonstration
 
 For a demonstration, see https://youtu.be/uqfP7VZL2fs and https://youtu.be/nmZQ4Avut_A
+
+Note these do not show the recording capability.
