@@ -45,19 +45,25 @@
 <div id="static">
   <p>
     <button id="start">Start Capture</button>&nbsp;<button id="stop">Stop Capture</button>
-    <input type="checkbox" id="canceldisplayecho" name="canceldisplayecho"><label for="canceldisplayecho">Cancel Echo</label>
   </p>
   <p>
     <label for="selectcam">Piano: </label><select id="selectcam"><option selected>None</option></select>
     <label for="selectcam">Face: </label><select id="selectface"><option selected>None</option></select>
-    <label for="selectmic">Microphone: </label><select id="selectmic"><option selected>None</option></select>
   </p>
   <p>
     <button id="startcam">Start Cameras</button>&nbsp;<button id="stopcam">Stop Cameras</button>
+  </p>
+  <p>
+    <button id="record" accesskey=" ">Record</button>
+    <input type="checkbox" id="includeaudio" name="includeaudio" checked><label for="includeaudio">Include audio</label>
+  </p>
+  <p id="audiooptions">
+    <label for="selectmic">Microphone: </label><select id="selectmic"></select>
     <input type="checkbox" id="cancelcamecho" name="cancelcamecho"><label for="cancelcamecho">Cancel Echo</label>
     <input type="checkbox" id="voice" name="voice"><label for="voice">Optimize for Voice</label>
   </p>
-  <p><button id="record" accesskey=" ">Record</button></p>
+  <p>Double-click canvas to start/stop recording</p>
+  <video id="recordedVideo" controls></video>
 </div>
 
 </div>

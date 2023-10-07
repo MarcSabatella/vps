@@ -18,7 +18,6 @@ const horizontalElem = document.getElementById("horizontal");
 
 const startElem = document.getElementById("start");
 const stopElem = document.getElementById("stop");
-const cancelDisplayEchoElem = document.getElementById("canceldisplayecho");
 
 const startCamElem = document.getElementById("startcam");
 const stopCamElem = document.getElementById("stopcam");
@@ -31,6 +30,8 @@ const selectFaceElem = document.getElementById("selectface");
 const defaultFaceElem = selectFaceElem.firstChild;
 const selectMicElem = document.getElementById("selectmic");
 const defaultMicElem = selectMicElem.firstChild;
+const includeAudioElem = document.getElementById("includeaudio");
+const audioOptionsElem = document.getElementById("audiooptions");
 
 const recordElem = document.getElementById("record");
 
@@ -49,24 +50,28 @@ function gotDevices(mediaDevices) {
   selectFaceElem.innerHTML = '';
   selectFaceElem.appendChild(defaultFaceElem);
   selectMicElem.innerHTML = '';
-  selectMicElem.appendChild(defaultMicElem);
+  if (defaultMicElem) {
+    selectMicElem.appendChild(defaultMicElem);
+  }
   let vcount = 0;
   let acount = 0;
   mediaDevices.forEach(mediaDevice => {
     if (mediaDevice.kind === 'videoinput') {
+      // add to piano list
       const option = document.createElement('option');
       option.value = mediaDevice.deviceId;
       const label = mediaDevice.label || `Camera ${++vcount}`;
       const textNode = document.createTextNode(label);
       option.appendChild(textNode);
       selectElem.appendChild(option);
-      // same for same
+      // same for face
       const option2 = document.createElement('option');
       option.value = mediaDevice.deviceId;
       const textNode2 = document.createTextNode(label);
       option2.appendChild(textNode2);
       selectFaceElem.appendChild(option2);
     } else if (mediaDevice.kind === 'audioinput') {
+      // add to microphone list
       const option = document.createElement('option');
       option.value = mediaDevice.deviceId;
       const label = mediaDevice.label || `Mic/line ${++acount}`;
@@ -127,6 +132,7 @@ var userMediaOptions = {
 
 var userAudioOptions = {
 //    latency: 1.0,
+  deviceId: 0,
   autoGainControl: false,
   noiseSuppression: false
 };
@@ -165,8 +171,6 @@ stopCamElem.addEventListener("click", function(evt) {
 async function startCapture() {
   msgElem.style.display = "none";
   try {
-    displayMediaOptions.audio.echoCancellation = cancelDisplayEchoElem.checked;
-    displayMediaOptions.audio.googEchoCancellation = cancelDisplayEchoElem.checked;
     videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
     //const devices = await navigator.mediaDevices.enumerateDevices();
     //const audioDevices = devices.filter(device => device.kind === 'audiooutput');
@@ -235,21 +239,7 @@ async function startCamera() {
     else {
       userMediaOptions.video = false;
     }
-    if (selectMicElem.value != 'None') {
-      if (selectMicElem.value) {
-        userAudioOptions.deviceId = { exact: selectMicElem.value };
-      } else {
-        userAudioOptions.deviceId = 0;
-      }
-      userAudioOptions.autoGainControl = voiceElem.checked;
-      userAudioOptions.noiseSuppression = voiceElem.checked;
-      userAudioOptions.echoCancellation = cancelCamEchoElem.checked;
-      userMediaOptions.audio = userAudioOptions;
-    }
-    else {
-      userMediaOptions.audio = false;
-    }
-    if (userMediaOptions.video || userMediaOptions.audio) {
+    if (userMediaOptions.video) {
       cameraElem.srcObject = await navigator.mediaDevices.getUserMedia(userMediaOptions);
     }
     //dumpOptionsInfo(cameraElem);
@@ -385,19 +375,114 @@ horizontalElem.onclick = function(event) {
 //
 
 var recording = false;
+let mediaRecorder;
+let recordedChunks = [];
+const recordedVideo = document.getElementById('recordedVideo');
 
-recordElem.onclick = function(event) {
-  if (recording) {
-    //stopRecording();
-    console.info("Recording ended");
-    this.innerText = "Record";
-  } else {
-    //startRecording();
-    console.info("Recording started");
-    this.innerText = "Stop";
+async function startRecording () {
+
+  try {
+
+    const displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    let audioStream = null;
+    let mediaStream;
+
+    if (!includeAudioElem.checked) {
+      console.log("skipping audio");
+      mediaStream = new MediaStream([
+        ...displayStream.getTracks()
+        ]);
+    } else {
+      console.log("getting audio");
+      if (selectMicElem.value) {
+        userAudioOptions.deviceId = { exact: selectMicElem.value };
+      } else {
+        userAudioOptions.deviceId = 0;
+      }
+      userAudioOptions.autoGainControl = voiceElem.checked;
+      userAudioOptions.noiseSuppression = voiceElem.checked;
+      userAudioOptions.echoCancellation = cancelCamEchoElem.checked;
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: userAudioOptions });
+      mediaStream = new MediaStream([
+        ...displayStream.getTracks(),
+        ...audioStream.getTracks()
+        ]);
+    }
+  
+    mediaRecorder = new MediaRecorder(mediaStream);
+    recordedChunks = [];
+  
+    mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+        }
+    };
+  
+    mediaRecorder.onstop = () => {
+        displayStream.getTracks().forEach(track => track.stop());
+        if (audioStream) {
+          audioStream.getTracks().forEach(track => track.stop());
+        }
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        recordedVideo.src = URL.createObjectURL(blob);
+        downloadRecording();
+    };
+  
+    mediaRecorder.start();
+    return true;
+    
+  } catch (error) {
+    console.log("Recording aborted");
+    recordElem.innerText = "Record";
+    recording = false;
+    return false;
   }
-  recording = !recording;
+
 }
+
+function stopRecording () {
+  mediaRecorder.stop();
+}
+
+function downloadRecording () {
+  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'recording.webm';
+  a.style.display = 'none';
+  a.click();
+  window.URL.revokeObjectURL(url);
+  a.remove();
+}
+
+function toggleRecord(event) {
+  if (recording) {
+    stopRecording();
+    console.info("Recording ended");
+    recordElem.innerText = "Record";
+    recording = false;
+  } else {
+    if (startRecording()) {
+      console.info("Recording started");
+      recordElem.innerText = "Stop";
+      recording = true;
+    }
+  }
+}
+
+includeaudio.onchange = function () {
+  if (this.checked) {
+    console.log("audio options enabled");
+    audioOptionsElem.style.display = "block";
+  } else {
+    console.log("audio options disabled");
+    audioOptionsElem.style.display = "none";
+  }
+}
+
+recordElem.onclick = toggleRecord;
+canvasDivElem.ondblclick = toggleRecord;
 
 //
 // storage management
@@ -413,7 +498,6 @@ function fromStorage () {
   vflip = (window.localStorage.getItem('vertical') == 'true');
   hflip = (window.localStorage.getItem('horizontal') == 'true');
   doTransform();
-  cancelDisplayEchoElem.checked = (window.localStorage.getItem('canceldisplayecho') == 'true');
   cancelCamEchoElem.checked = (window.localStorage.getItem('cancelcamecho') == 'true');
   voiceElem.checked = (window.localStorage.getItem('voice') == 'true');
 }
@@ -425,7 +509,6 @@ function toStorage () {
   window.localStorage.setItem('alignment', alignCaptureElem.value);
   window.localStorage.setItem('vertical', vflip);
   window.localStorage.setItem('horizontal', hflip);
-  window.localStorage.setItem('canceldisplayecho', cancelDisplayEchoElem.checked);
   window.localStorage.setItem('cancelcamecho', cancelCamEchoElem.checked);
   window.localStorage.setItem('voice', voiceElem.checked);
 }
@@ -446,7 +529,6 @@ function toStorage () {
 dividerElem.onchange = toStorage;
 positionElem.onchange = toStorage;
 alignCaptureElem.onchange = toStorage;
-cancelDisplayEchoElem.onchange = toStorage;
 cancelCamEchoElem.onchange = toStorage;
 voiceElem.onchange = toStorage;
 

@@ -78,9 +78,13 @@ body {
 }
 
 #record {
-  display: none;
+  /*display: none;*/
   background-color: red;
   color: white;
+}
+
+#recordedVideo {
+  display: none;
 }
 
 #log-div {
