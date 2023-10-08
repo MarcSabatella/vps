@@ -78,13 +78,19 @@ body {
 }
 
 #record {
-  /*display: none;*/
   background-color: red;
   color: white;
 }
 
-#recordedVideo {
+#recordingBlock {
   display: none;
+  margin-left: 32px;
+  margin-bottom: 16px;
+}
+
+#recordedVideo {
+  width: 600px;
+  margin-bottom: 16px;
 }
 
 #log-div {

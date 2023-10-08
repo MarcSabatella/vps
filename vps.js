@@ -34,6 +34,8 @@ const includeAudioElem = document.getElementById("includeaudio");
 const audioOptionsElem = document.getElementById("audiooptions");
 
 const recordElem = document.getElementById("record");
+const recordingBlockElem = document.getElementById("recordingblock");
+const downloadElem = document.getElementById("download");
 
 // log elements
 
@@ -378,6 +380,7 @@ var recording = false;
 let mediaRecorder;
 let recordedChunks = [];
 const recordedVideo = document.getElementById('recordedVideo');
+recordedVideo.src = '';
 
 async function startRecording () {
 
@@ -411,6 +414,11 @@ async function startRecording () {
   
     mediaRecorder = new MediaRecorder(mediaStream);
     recordedChunks = [];
+    if (recordedVideo.src) {
+      URL.revokeObjectURL(recordedVideo.src);
+      recordedVideo.src = '';
+      recordingBlockElem.style.display = "none";
+    }
   
     mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -425,6 +433,7 @@ async function startRecording () {
         }
         const blob = new Blob(recordedChunks, { type: 'video/webm' });
         recordedVideo.src = URL.createObjectURL(blob);
+        recordingBlockElem.style.display = "block";
         downloadRecording();
     };
   
@@ -445,14 +454,11 @@ function stopRecording () {
 }
 
 function downloadRecording () {
-  const blob = new Blob(recordedChunks, { type: 'video/webm' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
+  a.href = recordedVideo.src;
   a.download = 'recording.webm';
   a.style.display = 'none';
   a.click();
-  window.URL.revokeObjectURL(url);
   a.remove();
 }
 
@@ -485,6 +491,7 @@ includeaudio.onchange = function () {
 
 recordElem.onclick = toggleRecord;
 canvasDivElem.ondblclick = toggleRecord;
+downloadElem.onclick = downloadRecording;
 
 //
 // storage management
