@@ -391,8 +391,10 @@ async function startRecording () {
 
   try {
 
-    displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
     audioStream = null;
+    displayStream = null;
+    mediaStream = null;
+    displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
 
     if (!includeAudioElem.checked) {
       console.log("skipping audio");
@@ -432,7 +434,8 @@ async function startRecording () {
     };
   
     mediaRecorder.onstop = () => {
-        displayStream.getTracks().forEach(track => track.stop());
+        if (displayStream)
+          displayStream.getTracks().forEach(track => track.stop());
         if (audioStream) {
           audioStream.getTracks().forEach(track => track.stop());
         }
@@ -447,7 +450,8 @@ async function startRecording () {
     
   } catch (error) {
     console.log("Recording aborted: " + JSON.stringify(error) );
-    displayStream.getTracks().forEach(track => track.stop());
+    if (displayStream)
+      displayStream.getTracks().forEach(track => track.stop());
     if (audioStream) {
       audioStream.getTracks().forEach(track => track.stop());
     }
