@@ -376,19 +376,23 @@ horizontalElem.onclick = function(event) {
 // recording (not implemented)
 //
 
+let displayStream;
+let audioStream;
+let mediaStream;
 var recording = false;
 let mediaRecorder;
 let recordedChunks = [];
 const recordedVideo = document.getElementById('recordedVideo');
 recordedVideo.src = '';
+const selectFormatElem = document.getElementById('selectformat');
+let videoFormat;
 
 async function startRecording () {
 
   try {
 
-    const displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-    let audioStream = null;
-    let mediaStream;
+    displayStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    audioStream = null;
 
     if (!includeAudioElem.checked) {
       console.log("skipping audio");
@@ -411,8 +415,9 @@ async function startRecording () {
         ...audioStream.getTracks()
         ]);
     }
-  
-    mediaRecorder = new MediaRecorder(mediaStream);
+
+    videoFormat = selectFormatElem.value;
+    mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/' + videoFormat });
     recordedChunks = [];
     if (recordedVideo.src) {
       URL.revokeObjectURL(recordedVideo.src);
@@ -431,7 +436,7 @@ async function startRecording () {
         if (audioStream) {
           audioStream.getTracks().forEach(track => track.stop());
         }
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const blob = new Blob(recordedChunks, { type: 'video/' + videoFormat });
         recordedVideo.src = URL.createObjectURL(blob);
         recordingBlockElem.style.display = "block";
         downloadRecording();
@@ -441,9 +446,14 @@ async function startRecording () {
     return true;
     
   } catch (error) {
-    console.log("Recording aborted");
+    console.log("Recording aborted: " + JSON.stringify(error) );
+    displayStream.getTracks().forEach(track => track.stop());
+    if (audioStream) {
+      audioStream.getTracks().forEach(track => track.stop());
+    }
     recordElem.innerText = "Record";
     recording = false;
+    window.alert(error.message);
     return false;
   }
 
@@ -456,7 +466,7 @@ function stopRecording () {
 function downloadRecording () {
   const a = document.createElement('a');
   a.href = recordedVideo.src;
-  a.download = 'recording.webm';
+  a.download = 'recording.' + videoFormat;
   a.style.display = 'none';
   a.click();
   a.remove();

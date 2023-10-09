@@ -82,6 +82,10 @@ body {
   color: white;
 }
 
+#selectformatblock {
+  display: none;
+}
+
 #recordingBlock {
   display: none;
   margin-left: 32px;
