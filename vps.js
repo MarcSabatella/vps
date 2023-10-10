@@ -147,7 +147,9 @@ startElem.addEventListener("click", function(evt) {
 }, false);
 
 stopElem.addEventListener("click", function(evt) {
-  stopCapture();
+  if (videoElem.srcObject) {
+    stopCapture();
+  }
 }, false);
 
 startCamElem.addEventListener("click", function(evt) {
@@ -183,9 +185,13 @@ async function startCapture() {
 }
 
 function stopCapture(evt) {
-  let tracks = videoElem.srcObject.getTracks();
-  tracks.forEach(track => track.stop());
-  videoElem.srcObject = null;
+  try {
+    let tracks = videoElem.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+    videoElem.srcObject = null;
+  } catch (err) {
+    console.error("Error: " + err);
+  }
 }
 
 async function startFace() {
@@ -501,6 +507,7 @@ includeaudio.onchange = function () {
     console.log("audio options disabled");
     audioOptionsElem.style.display = "none";
   }
+  toStorage();
 }
 
 recordElem.onclick = toggleRecord;
@@ -523,6 +530,7 @@ function fromStorage () {
   doTransform();
   cancelCamEchoElem.checked = (window.localStorage.getItem('cancelcamecho') == 'true');
   voiceElem.checked = (window.localStorage.getItem('voice') == 'true');
+  includeAudioElem.checked = (window.localStorage.getItem('includeaudio') == 'true');
 }
 
 function toStorage () {
@@ -534,6 +542,7 @@ function toStorage () {
   window.localStorage.setItem('horizontal', hflip);
   window.localStorage.setItem('cancelcamecho', cancelCamEchoElem.checked);
   window.localStorage.setItem('voice', voiceElem.checked);
+  window.localStorage.setItem('includeaudio', includeAudioElem.checked);
 }
 
 //
