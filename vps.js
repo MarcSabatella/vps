@@ -392,6 +392,7 @@ const recordedVideo = document.getElementById('recordedVideo');
 recordedVideo.src = '';
 const selectFormatElem = document.getElementById('selectformat');
 let videoFormat;
+const countdownAudio = new Audio('countdown.wav');
 
 async function startRecording () {
 
@@ -450,12 +451,29 @@ async function startRecording () {
         recordingBlockElem.style.display = "block";
         downloadRecording();
     };
-  
-    mediaRecorder.start();
+
+    countdownAudio.addEventListener('ended', function() {
+      if (recording) {
+        mediaRecorder.start();
+      } else {
+        // aborted during countdown
+        if (displayStream)
+          displayStream.getTracks().forEach(track => track.stop());
+        if (audioStream) {
+          audioStream.getTracks().forEach(track => track.stop());
+        }
+        recordElem.innerText = "Record";
+        recording = false;
+        return false;
+      }
+    });
+    countdownAudio.currentTime = 0;
+    countdownAudio.play();
+
     return true;
     
   } catch (error) {
-    console.log("Recording aborted: " + JSON.stringify(error) );
+    console.log("Recording aborted: " + error.message);
     if (displayStream)
       displayStream.getTracks().forEach(track => track.stop());
     if (audioStream) {
@@ -463,13 +481,16 @@ async function startRecording () {
     }
     recordElem.innerText = "Record";
     recording = false;
-    window.alert(error.message);
+    if (error.name != 'NotAllowedError') {
+      window.alert(error.message);
+    }
     return false;
   }
 
 }
 
 function stopRecording () {
+  countdownAudio.pause();
   mediaRecorder.stop();
 }
 
