@@ -249,6 +249,7 @@ async function startCamera() {
     }
     if (userMediaOptions.video) {
       cameraElem.srcObject = await navigator.mediaDevices.getUserMedia(userMediaOptions);
+      positionElem.oninput();
     }
     //dumpOptionsInfo(cameraElem);
   } catch(err) {
