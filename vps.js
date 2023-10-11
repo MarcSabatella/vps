@@ -249,7 +249,6 @@ async function startCamera() {
     }
     if (userMediaOptions.video) {
       cameraElem.srcObject = await navigator.mediaDevices.getUserMedia(userMediaOptions);
-      positionElem.oninput();
     }
     //dumpOptionsInfo(cameraElem);
   } catch(err) {
@@ -380,7 +379,7 @@ horizontalElem.onclick = function(event) {
 };
 
 //
-// recording (not implemented)
+// recording
 //
 
 let displayStream;
@@ -599,3 +598,8 @@ window.onresize = setSizes;
 navigator.mediaDevices.enumerateDevices().then(gotDevices);
 navigator.mediaDevices.ondevicechange = devicesChanged;
 listDevices();
+
+// set up listener for camera loaded
+cameraElem.addEventListener('loadedmetadata', function() {
+  positionElem.oninput();
+});
