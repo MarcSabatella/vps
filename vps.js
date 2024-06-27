@@ -120,15 +120,15 @@ var displayMediaOptions = {
 
 var faceMediaOptions = {
   video: {
-    facingMode: { ideal: "user" },
+    //facingMode: { ideal: "user" },
     resizeMode: { ideal: "crop-and-scale" }
   }
 };
 
 var userMediaOptions = {
   video: {
-    aspectRatio: { ideal: 1.78 },
-    facingMode: { ideal: "environment" }
+    //facingMode: { ideal: "environment" },
+    aspectRatio: { ideal: 1.78 }
   }
 };
 
