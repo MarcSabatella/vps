@@ -34,6 +34,8 @@ There is also a keyboard shortcut, Alt+Space
 (for Chrome; some browsers may use modifiers other than Alt).
 Stop recording the same way.
 You will then be prompted to save the resulting webm file.
+While viewing this window, the recording will automatically pause,
+so you won't see the "tunnel effect" from the screen share while viewing this window to start or stop the recording.
 
 By sharing just a specific window or browser tab,
 you can then switch to whatever other app you wish to actually display as the screen capture.
