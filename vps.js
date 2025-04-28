@@ -455,6 +455,9 @@ async function startRecording () {
     countdownAudio.addEventListener('ended', function() {
       if (recording) {
         mediaRecorder.start();
+        if (document.hasFocus()) {
+          mediaRecorder.pause();
+        }
       } else {
         // aborted during countdown
         if (displayStream)
@@ -566,6 +569,7 @@ function toStorage () {
   window.localStorage.setItem('includeaudio', includeAudioElem.checked);
 }
 
+
 //
 // main
 //
@@ -602,4 +606,18 @@ listDevices();
 // set up listener for camera loaded
 cameraElem.addEventListener('loadedmetadata', function() {
   positionElem.oninput();
+});
+
+// blur screen share when recording & focused
+window.addEventListener('focus', function () {
+  if (mediaRecorder && mediaRecorder.state == "recording") {
+    mediaRecorder.pause();
+  }
+});
+
+// blur screen share when recording & focused
+window.addEventListener('blur', function () {
+  if (mediaRecorder && mediaRecorder.state == "paused") {
+    mediaRecorder.resume();
+  }
 });
